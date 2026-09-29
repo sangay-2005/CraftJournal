@@ -15,6 +15,8 @@ struct AddEntryView: View {
     @State private var title = ""
     @State private var notes = ""
     @State private var craftType = crafts[0]
+    @State private var image: UIImage?
+    @State private var showingCamera = false
 
     var body: some View {
         NavigationStack {
@@ -26,8 +28,25 @@ struct AddEntryView: View {
                         Text(craft)
                     }
                 }
+                
+                Section("Photo") {
+                    if let image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 250)
+                    }
+                    Button("Take Photo") {
+                        showingCamera = true
+                    }
+                    .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+                }
             }
             .navigationTitle("New Entry")
+            .fullScreenCover(isPresented: $showingCamera) {
+                CameraView(image: $image)
+                    .ignoresSafeArea()
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -49,6 +68,7 @@ struct AddEntryView: View {
         entry.date = Date()
 
         do {
+            entry.photo = image?.jpegData(compressionQuality: 0.7)
             try viewContext.save()
             dismiss()
         } catch {
