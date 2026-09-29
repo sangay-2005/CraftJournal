@@ -13,12 +13,14 @@ struct AddEntryView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var title = ""
+    @State private var notes = ""
     @State private var craftType = crafts[0]
 
     var body: some View {
         NavigationStack {
             Form {
                 TextField("Title", text: $title)
+                TextField("Notes", text: $notes, axis: .vertical)
                 Picker("Craft", selection: $craftType) {
                     ForEach(crafts, id: \.self) { craft in
                         Text(craft)
@@ -42,6 +44,7 @@ struct AddEntryView: View {
         let entry = CraftEntry(context: viewContext)
         entry.id = UUID()
         entry.title = title
+        entry.notes = notes
         entry.craftType = craftType
         entry.date = Date()
 

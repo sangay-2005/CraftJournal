@@ -22,6 +22,10 @@ struct EntryDetailView: View {
                 if let date = entry.date {
                     Text(date, style: .date)
                 }
+                if let notes = entry.notes, !notes.isEmpty {
+                    Text(notes)
+                        .font(.body)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
