@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct EntryDetailView: View {
     @ObservedObject var entry: CraftEntry
+    @State private var showingEditEntry = false
 
     var body: some View {
         ScrollView {
@@ -26,10 +28,39 @@ struct EntryDetailView: View {
                     Text(notes)
                         .font(.body)
                 }
+                if let artisanName = entry.artisanName, !artisanName.isEmpty {
+                    Text("Artisan: \(artisanName)")
+                        .font(.body)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if let photoData = entry.photo,
+                   let uiImage = UIImage(data: photoData) {
+
+                    ShareLink(
+                        item: photoData,
+                        preview: SharePreview(
+                            entry.title ?? "Craft Photo",
+                            image: Image(uiImage: uiImage)
+                        )
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+
+                Button("Edit") {
+                    showingEditEntry = true
+                }
+            }
+        }
+        .sheet(isPresented: $showingEditEntry) {
+            EditEntryView(entry: entry)
+                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+        }
     }
 }
